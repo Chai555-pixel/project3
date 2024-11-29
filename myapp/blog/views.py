@@ -5,7 +5,13 @@ from .models import Post
 from .forms import PostForm
 from django.contrib import messages
 
-
+def home(request):
+    # Retrieve all posts from the database
+    posts = Post.objects.all()  # Optionally, you can add filtering, ordering, etc.
+    context = {'posts': posts}
+    
+    # Render the 'home.html' template with the context
+    return render(request, 'blog/home.html', context)
 
 def index(request):
     if request.user.is_authenticated:

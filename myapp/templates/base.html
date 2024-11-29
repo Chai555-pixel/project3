@@ -12,6 +12,7 @@
     <header>
         {% if request.user.is_authenticated %}
             <!-- Links for logged-in users -->
+            <a href="{% url 'home' %}">Home</a>
             <a href="{% url 'posts' %}">My Posts</a>
             <a href="{% url 'post-create' %}">New Post</a>
             <span>Hi {{ request.user.username | title }}</span>
