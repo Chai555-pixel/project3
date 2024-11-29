@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>All Posts</h1>
+    <ul>
+        {% for post in posts %}
+            <li>
+                <h2>{{ post.title }}</h2>
+                <p>{{ post.content|slice:":200" }}...</p>
+                <small>Posted by {{ post.author.username }} on {{ post.created_at }}</small>
+
+                {% if post.author == request.user %}
+                    <a href="{% url 'post-edit' post.id %}">Edit</a> |
+                    <a href="{% url 'post-delete' post.id %}">Delete</a>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+
+    <a href="{% url 'post-create' %}">Create New Post</a>
+{% endblock %}
