@@ -1,23 +1,40 @@
-# users/views.py
-# users/views.py
+from django.contrib.auth.models import User  # Import the User model
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from django.contrib.auth import login, authenticate, logout
-from .forms import LoginForm, RegisterForm
+from django.contrib.auth import login,logout, authenticate
+from .forms import  LoginForm,RegisterForm
 
 def sign_up(request):
+    if request.method == 'GET':
+        form = RegisterForm()  # Display the empty registration form
+        return render(request, 'users/register.html', {'form': form})
+
     if request.method == 'POST':
-        form = RegisterForm(request.POST)
-        if form.is_valid():
-            # Save the new user to the database
-            user = form.save()
-            # Log in the user automatically after registration
+        form = RegisterForm(request.POST)  # Get form data from the POST request
+        
+        if form.is_valid():  # Validate the form data
+            username = form.cleaned_data.get('username').lower()
+            
+            # Check if the username already exists
+            if User.objects.filter(username=username).exists():
+                form.add_error('username', 'Username already exists. Please choose a different one.')
+                return render(request, 'users/register.html', {'form': form})
+
+            # Create user if username is unique
+            user = form.save(commit=False)
+            user.username = username  # Ensure the username is lowercase
+            user.save()  # Save the user object to the database
+
+            # Set the flash success message
+            messages.success(request, 'You have signed up successfully.')
+            
+            # Log the user in and redirect to the posts page
             login(request, user)
-            messages.success(request, 'Registration successful!')
-            return redirect('posts')  # Redirect to the posts page or dashboard
-    else:
-        form = RegisterForm()
-    return render(request, 'users/register.html', {'form': form})
+            return redirect('posts')
+
+        else:
+            # If form is invalid, re-render the form with error messages
+            return render(request, 'users/register.html', {'form': form})
 
 def sign_in(request):
     """
